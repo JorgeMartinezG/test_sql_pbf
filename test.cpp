@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
   bool exists = std::filesystem::exists(output_file);
 
   std::ofstream file;
-    file.open(output_file, std::ios::out | std::ios::app);
+  file.open(output_file, std::ios::out | std::ios::app);
   if (!exists) {
     file << "file_name,total_nodes,count_nodes,total_ways,count_ways,total_time,count_total,average_time\n";
   }
