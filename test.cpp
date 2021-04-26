@@ -130,19 +130,23 @@ int main(int argc, char* argv[]) {
 
   std::cout << "File = " <<  path << std::endl;
 
+  int avg_nodes = static_cast<int>(handler.total_nodes / handler.count_nodes);
+  int avg_ways = static_cast<int>(handler.total_ways / handler.count_ways);
+
   std::cout << "nodes" << std::endl << "======" << std::endl
     << "total time(us) = " << handler.total_nodes << std::endl
-    << "Number of nodes = " << handler.count_nodes << std::endl << std::endl;
+    << "Number of nodes = " << handler.count_nodes << std::endl
+    << "Average time nodes (us) = " << avg_nodes << std::endl << std::endl;
 
   std::cout << "ways" << std::endl << "======" << std::endl
     << "total time(us) = " << handler.total_ways << std::endl
-    << "Number of ways = " << handler.count_ways << std::endl << std::endl;
-
+    << "Number of ways = " << handler.count_ways << std::endl
+    << "Average time ways (us) = " << avg_ways << std::endl << std::endl;
 
   long total_time = handler.total_nodes + handler.total_ways;
   long count_total = handler.count_nodes + handler.count_ways;
 
-  double avg_time = total_time / count_total;
+  int avg_time = static_cast<int>(total_time / count_total);
   std::cout << "Average time(us) = " << avg_time << std::endl;
 
   // Store results.
@@ -152,12 +156,12 @@ int main(int argc, char* argv[]) {
   std::ofstream file;
   file.open(output_file, std::ios::out | std::ios::app);
   if (!exists) {
-    file << "file_name,db_url,total_nodes,count_nodes,total_ways,count_ways,total_time,count_total,average_time\n";
+    file << "file_name,db_url,total_nodes,count_nodes,total_ways,count_ways,total_time,count_total,average_time_nodes,average_time_ways,average_time\n";
   }
 
   std::string row = path + "," + db_url + "," + std::to_string(handler.total_nodes) + "," + std::to_string(handler.count_nodes) + "," +
     std::to_string(handler.total_ways) + "," + std::to_string(handler.count_ways) + "," + std::to_string(total_time)
-    + "," + std::to_string(count_total) + "," + std::to_string(avg_time) + "\n";
+    + "," + std::to_string(count_total) + "," + std::to_string(avg_nodes) + "," + std::to_string(avg_ways) + "," + std::to_string(avg_time) + "\n";
   file << row;
 
   file.close();
