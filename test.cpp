@@ -54,10 +54,9 @@ long runQuery(std::string query, std::shared_ptr<pqxx::connection> sdb) {
 
 class MyHandler : public osmium::handler::Handler {
 public:
-  MyHandler(void) {
-      std::string url = std::getenv("DB_URL");
-      std::cout << "URL: " << url << std::endl;
-      sdb = std::make_shared<pqxx::connection>(url);
+  MyHandler(std::string db_url) {
+    std::cout << "URL: " << db_url << std::endl;
+    sdb = std::make_shared<pqxx::connection>(db_url);
   }
 
   void way(const osmium::Way& way) {
@@ -121,21 +120,22 @@ int main(int argc, char* argv[]) {
   auto otypes = osmium::osm_entity_bits::node | osmium::osm_entity_bits::way;
 
   std::string path = argv[1];
+  std::string db_url = std::getenv("DB_URL");
 
   osmium::io::Reader reader{path, otypes};
 
-  MyHandler handler;
+  MyHandler handler(db_url);
   osmium::apply(reader, handler);
   reader.close();
 
   std::cout << "File = " <<  path << std::endl;
 
   std::cout << "nodes" << std::endl << "======" << std::endl
-    << "total time(ms) = " << handler.total_nodes << std::endl
+    << "total time(us) = " << handler.total_nodes << std::endl
     << "Number of nodes = " << handler.count_nodes << std::endl << std::endl;
 
   std::cout << "ways" << std::endl << "======" << std::endl
-    << "total time(ms) = " << handler.total_ways << std::endl
+    << "total time(us) = " << handler.total_ways << std::endl
     << "Number of ways = " << handler.count_ways << std::endl << std::endl;
 
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
   long count_total = handler.count_nodes + handler.count_ways;
 
   double avg_time = total_time / count_total;
-  std::cout << "Average time(ms) = " << avg_time << std::endl;
+  std::cout << "Average time(us) = " << avg_time << std::endl;
 
   // Store results.
   std::string output_file = "results.csv";
@@ -152,10 +152,10 @@ int main(int argc, char* argv[]) {
   std::ofstream file;
   file.open(output_file, std::ios::out | std::ios::app);
   if (!exists) {
-    file << "file_name,total_nodes,count_nodes,total_ways,count_ways,total_time,count_total,average_time\n";
+    file << "file_name,db_url,total_nodes,count_nodes,total_ways,count_ways,total_time,count_total,average_time\n";
   }
 
-  std::string row = path + "," + std::to_string(handler.total_nodes) + "," + std::to_string(handler.count_nodes) + "," +
+  std::string row = path + "," + db_url + "," + std::to_string(handler.total_nodes) + "," + std::to_string(handler.count_nodes) + "," +
     std::to_string(handler.total_ways) + "," + std::to_string(handler.count_ways) + "," + std::to_string(total_time)
     + "," + std::to_string(count_total) + "," + std::to_string(avg_time) + "\n";
   file << row;
