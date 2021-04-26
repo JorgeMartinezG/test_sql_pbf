@@ -1,0 +1,60 @@
+TEST_DB=run_tests
+TEST_FILE="nauru-latest.osm.pbf"
+PGPASSWORD="wvlo9zqcCBOcviM"
+DROP_CMD="DROP DATABASE $(TEST_DB)"
+
+AURORA_USER=postgres
+AURORA_DB=underpass
+AURORA_PW=""
+AURORA_ENDPOINT=""
+
+RDS_USER=postgres
+RDS_DB=underpass
+RDS_PW=""
+RDS_ENDPOINT=""
+
+LOCAL_USER=postgres
+LOCAL_DB=underpass
+LOCAL_PW=""
+LOCAL_ENDPOINT=localhost
+
+default:
+	g++ test.cpp -o test --std=c++17 -lpthread -lz -lexpat -lbz2 -lpqxx -lpq
+
+download:
+	#wget https://download.geofabrik.de/south-america/colombia-latest.osm.pbf
+	wget https://download.geofabrik.de/australia-oceania/nauru-latest.osm.pbf
+
+clean_rds:
+	PGPASSWORD=$(RDS_PW) psql -U $(RDS_USER) -d $(RDS_DB) -h $(RDS_ENDPOINT) -c $(DROP_CMD)
+
+migrate_rds:
+	PGPASSWORD=$(RDS_PW) psql -U $(RDS_USER) -d $(RDS_DB) -h $(RDS_ENDPOINT) -f migration.sql 
+
+run_rds:
+	DB_URL="postgresql://$(RDS_USER):$(RDS_PW)@$(RDS_ENDPOINT):5432/$(TEST_DB)" ./test $(TEST_FILE)
+
+clean_aurora:
+	PGPASSWORD=$(AURORA_PW) psql -U $(AURORA_USER) -d $(AURORA_DB) -h $(AURORA_ENDPOINT) -c $(DROP_CMD)
+
+migrate_aurora:
+	PGPASSWORD=$(AURORA_PW) psql -U $(AURORA_USER) -d $(AURORA_DB) -h $(AURORA_ENDPOINT) -f migration.sql 
+
+run_aurora:
+	DB_URL="postgresql://$(AURORA_USER):$(AURORA_PW)@$(AURORA_ENDPOINT):5432/$(TEST_DB)" ./test $(TEST_FILE)
+
+clean_local:
+	PGPASSWORD=$(LOCAL_PW) psql -U $(LOCAL_USER) -d $(LOCAL_DB) -h $(LOCAL_ENDPOINT) -c $(DROP_CMD)
+
+migrate_local:
+	PGPASSWORD=$(LOCAL_PW) psql -U $(LOCAL_USER) -d $(LOCAL_DB) -h $(LOCAL_ENDPOINT) -f migration.sql 
+
+run_local:
+	DB_URL="postgresql://$(LOCAL_USER):$(LOCAL_PW)@$(LOCAL_ENDPOINT):5432/$(TEST_DB)" ./test $(TEST_FILE)
+
+run: run_local run_rds run_aurora
+
+clean: clean_local clean_rds clean_aurora
+
+migrate: migrate_local migrate_rds migrate_aurora
+
