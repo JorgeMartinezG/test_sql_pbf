@@ -136,12 +136,12 @@ int main(int argc, char* argv[]) {
   std::cout << "nodes" << std::endl << "======" << std::endl
     << "total time(us) = " << handler.total_nodes << std::endl
     << "Number of nodes = " << handler.count_nodes << std::endl
-    << "Average time nodes (us) = " << avg_nodes << std::endl << std::endl;
+    << "Average time nodes(us) = " << avg_nodes << std::endl << std::endl;
 
   std::cout << "ways" << std::endl << "======" << std::endl
     << "total time(us) = " << handler.total_ways << std::endl
     << "Number of ways = " << handler.count_ways << std::endl
-    << "Average time ways (us) = " << avg_ways << std::endl << std::endl;
+    << "Average time ways(us) = " << avg_ways << std::endl << std::endl;
 
   long total_time = handler.total_nodes + handler.total_ways;
   long count_total = handler.count_nodes + handler.count_ways;
